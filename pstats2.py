@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # Written by James Roskind
 # Based on prior profile module by Sjoerd Mullender...
 #   which was hacked somewhat by: Guido van Rossum
-# Modified by Jakub Stasiak
+# Modified by Jakub Stasiak, Johnson Chetty
 
 # Copyright Disney Enterprises, Inc.  All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement
@@ -29,16 +29,16 @@ import os
 import time
 import marshal
 import re
-from collections import namedtuple
 
 from six import iteritems
+from recordtype import recordtype
 
 __all__ = ["Stats"]
 
 __version__ = '0.1.0'
 
 
-class FunctionStats(namedtuple('FunctionStatsRecord', 'cc nc tt ct callers')):
+class FunctionStats(recordtype('FunctionStatsRecord', 'cc nc tt ct callers')):
     def __getitem__(self, index):
         return getattr(self, self.__slots__[index])
 
@@ -83,7 +83,7 @@ class Stats(object):
     """
 
     def __init__(self, *args, **kwargs):
-        self.stream = kwargs.pop('stream', sys.stdout)
+        self.stream = kwargs.pop(u'stream', sys.stdout)
         assert not kwargs
 
         if not len(args):
@@ -375,18 +375,16 @@ class Stats(object):
         for func in self.top_level:
             print(indent, func_get_function_name(func), file=self.stream)
 
-        print(indent, self.total_calls, "function calls", end=' ', file=self.stream)
+        print(unicode(indent), unicode(self.total_calls), unicode("function calls"), file=self.stream)
         if self.total_calls != self.prim_calls:
             print("(%d primitive calls)" % self.prim_calls, end=' ', file=self.stream)
         print("in %.3f seconds" % self.total_tt, file=self.stream)
-        print(file=self.stream)
+        print(indent, file=self.stream)
         width, list = self.get_print_list(amount)
         if list:
             self.print_title()
             for func in list:
-                self.print_line(func)
-            print(file=self.stream)
-            print(file=self.stream)
+                self.print_line(func)                                    
         return self
 
     def print_callees(self, *amount):
@@ -461,8 +459,8 @@ class Stats(object):
         c = str(nc)
         if nc != cc:
             c = c + '/' + str(cc)
-        print(c.rjust(9), end=' ', file=self.stream)
-        print(f8(tt), end=' ', file=self.stream)
+        print(unicode(c.rjust(9)), file=self.stream)
+        print(unicode(f8(tt)), end=u' ', file=self.stream)
         if nc == 0:
             print(' ' * 8, end=' ', file=self.stream)
         else:
